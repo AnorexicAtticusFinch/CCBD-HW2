@@ -195,7 +195,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt lf2.Arn
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiRest}/dev/GET/search
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiRest}/*/*/*
 
 Outputs:
   WebsiteURL:
