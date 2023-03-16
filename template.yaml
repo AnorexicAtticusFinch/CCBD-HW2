@@ -308,7 +308,7 @@ Resources:
                     - /*
   
   openSearch:
-    Type: AWS::Elasticsearch::Domain
+    Type: AWS::OpenSearchService::Domain
     Properties:
       DomainName: ccbdassignment2
       AccessPolicies:
