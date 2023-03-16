@@ -74,256 +74,6 @@ Resources:
   b2:
     Type: AWS::S3::Bucket
 
-  restApi:
-    Type: "AWS::ApiGateway::RestApi"
-    Properties:
-      ApiKeySourceType: HEADER
-      EndpointConfiguration:
-        Types:
-          - REGIONAL
-      Name: ccbd-assignment-2
-
-  apiSearchResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt 
-        - restApi
-        - RootResourceId
-      PathPart: search
-      RestApiId: !Ref restApi
-
-  apiSearchGetCall:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: GET
-      Integration:
-        ConnectionType: INTERNET
-        Credentials: !GetAtt 
-          - apiLf2IamRole
-          - Arn
-        IntegrationHttpMethod: GET
-        PassthroughBehavior: WHEN_NO_MATCH
-        TimeoutInMillis: 29000
-        Type: AWS_PROXY
-        Uri: !Sub >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations
-        IntegrationResponses:
-          - ResponseTemplates:
-              application/json: ''
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-            StatusCode: 200
-      MethodResponses:
-        - ResponseParameters:
-            method.response.header.Access-Control-Allow-Origin: true
-            method.response.header.Access-Control-Allow-Methods: true
-            method.response.header.Access-Control-Allow-Headers: true
-          StatusCode: 200
-      OperationName: lambda
-      ResourceId: !Ref apiSearchResource
-      RestApiId: !Ref restApi
-
-  apiSearchOptionsCall:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: OPTIONS
-      Integration:
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        Type: MOCK
-        IntegrationResponses:
-          - ResponseTemplates:
-              application/json: ''
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-            StatusCode: 200
-      MethodResponses:
-        - ResponseParameters:
-            method.response.header.Access-Control-Allow-Origin: true
-            method.response.header.Access-Control-Allow-Methods: true
-            method.response.header.Access-Control-Allow-Headers: true
-          ResponseModels:
-            application/json: Empty
-          StatusCode: 200
-      ResourceId: !Ref apiSearchResource
-      RestApiId: !Ref restApi
-
-  apiUploadResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !GetAtt 
-        - restApi
-        - RootResourceId
-      PathPart: upload
-      RestApiId: !Ref restApi
-
-  apiUploadPutCall:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: PUT
-      RequestParameters:
-        method.request.path.item: true
-      Integration:
-        ConnectionType: INTERNET
-        Credentials: !GetAtt 
-          - apiB2IamRole
-          - Arn
-        IntegrationHttpMethod: PUT
-        PassthroughBehavior: WHEN_NO_MATCH
-        TimeoutInMillis: 29000
-        Type: AWS
-        Uri: !Sub >-
-          arn:aws:apigateway:${AWS::Region}:s3:path/${b2}/{object}
-        RequestParameters:
-          integration.request.path.object: method.request.path.item
-        IntegrationResponses:
-          - ResponseTemplates:
-              application/json: ''
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-              method.response.header.Access-Control-Allow-Methods: '''PUT,OPTIONS'''
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-            StatusCode: 200
-      MethodResponses:
-        - ResponseParameters:
-            method.response.header.Access-Control-Allow-Origin: true
-            method.response.header.Access-Control-Allow-Methods: true
-            method.response.header.Access-Control-Allow-Headers: true
-          StatusCode: 200
-      OperationName: s3
-      ResourceId: !Ref apiUploadResource
-      RestApiId: !Ref restApi
-
-  apiUploadOptionsCall:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: OPTIONS
-      Integration:
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        Type: MOCK
-        IntegrationResponses:
-          - ResponseTemplates:
-              application/json: ''
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Origin: '''*'''
-              method.response.header.Access-Control-Allow-Methods: '''PUT,OPTIONS'''
-              method.response.header.Access-Control-Allow-Headers: >-
-                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-            StatusCode: 200
-      MethodResponses:
-        - ResponseParameters:
-            method.response.header.Access-Control-Allow-Origin: true
-            method.response.header.Access-Control-Allow-Methods: true
-            method.response.header.Access-Control-Allow-Headers: true
-          ResponseModels:
-            application/json: Empty
-          StatusCode: 200
-      ResourceId: !Ref apiUploadResource
-      RestApiId: !Ref restApi
-
-  apiModel:
-    Type: "AWS::ApiGateway::Model"
-    Properties:
-      ContentType: application/json
-      RestApiId: !Ref restApi
-      Schema: {}
-
-  apiStage:
-    Type: "AWS::ApiGateway::Stage"
-    Properties:
-      DeploymentId: !Ref apiDeployment
-      RestApiId: !Ref restApi
-      StageName: dev
-
-  apiDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn:
-      - "apiSearchGetCall"
-      - "apiSearchOptionsCall"
-      - "apiUploadPutCall"
-      - "apiUploadOptionsCall"
-    Properties:
-      RestApiId: !Ref restApi
-
-  apiLf2IamRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: ''
-            Effect: Allow
-            Principal:
-              Service:
-                - apigateway.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: LambdaAccess
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action: 'lambda:*'
-                Resource: !GetAtt 
-                  - lf2
-                  - Arn
-
-  lambdaApiGatewayInvoke:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !GetAtt lf2.Arn
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${restApi}/dev/GET/search
-
-
-  apiB2IamRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: ''
-            Effect: Allow
-            Principal:
-              Service:
-                - apigateway.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: S3BucketAccess
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action: 's3:*'
-                Resource: !Join
-                  - ""
-                  - - "arn:aws:s3:::"
-                    - !Ref b2
-                    - /*
-
   openSearch:
     Type: AWS::Elasticsearch::Domain
     Properties:
@@ -360,6 +110,92 @@ Resources:
         MasterUserOptions:
           MasterUserName: masterUserCCBDHW2
           MasterUserPassword: ILikeBigMuttsAndICannotL13!
+
+  apiRest:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      ApiKeySourceType: HEADER
+      EndpointConfiguration:
+        Types:
+          - EDGE
+      Name: ccbd-assignment-2
+  
+  apiSearchResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt apiRest.RootResourceId
+      PathPart: search
+      RestApiId: !Ref apiRest
+
+  apiSearchGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        ConnectionType: INTERNET
+        Credentials: !GetAtt apiLf2IamRole.Arn
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        TimeoutInMillis: 29000
+        Type: AWS_PROXY
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations'
+      OperationName: search
+      ResourceId: !Ref apiSearchResource
+      RestApiId: !Ref apiRest
+
+  apiModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: 'application/json'
+      RestApiId: !Ref apiRest
+      Schema: {}
+
+  apiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref apiDeployment
+      RestApiId: !Ref apiRest
+      StageName: dev
+
+  apiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - apiSearchGetMethod
+    Properties:
+      RestApiId: !Ref apiRest
+
+  apiLf2IamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: ''
+            Effect: 'Allow'
+            Principal:
+              Service:
+                - 'apigateway.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+        - PolicyName: lf2ApiAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 'lambda:*'
+                Resource: !GetAtt lf2.Arn
+
+  lf2ApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt lf2.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${restApi}/dev/GET/search
 
 Outputs:
   WebsiteURL:
