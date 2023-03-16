@@ -302,10 +302,10 @@ Resources:
               - Effect: Allow
                 Action: 's3:*'
                 Resource: !Join
-              - ""
-              - - "arn:aws:s3:::"
-                - !Ref b2
-                - /*
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - !Ref b2
+                    - /*
   
   openSearch:
     Type: AWS::Elasticsearch::Domain
@@ -337,3 +337,18 @@ Resources:
         MasterUserOptions:
           MasterUserName: masterUserCCBDHW2
           MasterUserPassword: ILikeBigMuttsAndICannotL13!
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt
+      - b1
+      - WebsiteURL
+    Description: URL for website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join
+      - ""
+      - - "https://"
+        - !GetAtt
+          - b1
+          - DomainName
+    Description: Name of S3 bucket to hold website content      
