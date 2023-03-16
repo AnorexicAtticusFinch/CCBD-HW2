@@ -106,7 +106,7 @@ Resources:
         IntegrationHttpMethod: GET
         PassthroughBehavior: WHEN_NO_MATCH
         TimeoutInMillis: 29000
-        Type: AWS
+        Type: AWS_PROXY
         Uri: !Sub >-
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations
         IntegrationResponses:
@@ -184,7 +184,7 @@ Resources:
         IntegrationHttpMethod: PUT
         PassthroughBehavior: WHEN_NO_MATCH
         TimeoutInMillis: 29000
-        Type: AWS
+        Type: AWS_PROXY
         Uri: !Sub >-
           arn:aws:apigateway:${AWS::Region}:s3:path/${b2}/{object}
         RequestParameters:
@@ -287,6 +287,15 @@ Resources:
                 Resource: !GetAtt 
                   - lf2
                   - Arn
+
+  lambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt lf2.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${restApi}/dev/GET/search
+
 
   apiB2IamRole:
     Type: "AWS::IAM::Role"
