@@ -10,8 +10,8 @@ Resources:
       FunctionName: index-photos-lf1
       Tracing: Active
       Timeout: 30
-      CodeUri: backend/lf1.py
-      Handler: lambda_function.main
+      CodeUri: ./backend/
+      Handler: lf1.main
       Runtime: python3.7
       Policies:
         - CloudWatchPutMetricPolicy: {}
@@ -31,8 +31,8 @@ Resources:
       FunctionName: search-photos-lf2
       Tracing: Active
       Timeout: 30
-      CodeUri: backend/lf2.py
-      Handler: lambda_function.main
+      CodeUri: ./backend/
+      Handler: lf2.main
       Runtime: python3.7
       Policies:
         - CloudWatchPutMetricPolicy: {}
