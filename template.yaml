@@ -321,6 +321,7 @@ Resources:
         InstanceCount: "1"
         ZoneAwarenessEnabled: "false"
         InstanceType: "t3.small.elasticsearch"
+      ElasticsearchVersion: 7.1
       EBSOptions:
         EBSEnabled: true
         Iops: 0
