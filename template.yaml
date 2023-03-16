@@ -20,7 +20,7 @@ Resources:
         ### Rekognition
       Environment:
         Variables:
-        B2_BUCKET_NAME: !Ref b2
+          B2_BUCKET_NAME: !Ref b2
         ### Opensearch urls
       Event:
         ### B2 invocation
@@ -41,7 +41,7 @@ Resources:
         ### Lex
       Environment:
         Variables:
-        B2_BUCKET_NAME: !Ref b2
+          B2_BUCKET_NAME: !Ref b2
         ### Opensearch urls
         ### Lex info
 
