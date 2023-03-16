@@ -183,6 +183,10 @@ Resources:
         PassthroughBehavior: WHEN_NO_MATCH
         TimeoutInMillis: 29000
         Type: AWS
+        Uri: !Sub >-
+          arn:aws:apigateway:${AWS::Region}:s3:path/${b2}/{object}
+        RequestParameters:
+          integration.request.path.object: method.request.path.item
         IntegrationResponses:
           - ResponseTemplates:
               application/json: ''
@@ -198,7 +202,7 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Headers: true
           StatusCode: 200
-      OperationName: lambda
+      OperationName: s3
       ResourceId: !Ref apiUploadResource
       RestApiId: !Ref restApi
 
@@ -249,6 +253,11 @@ Resources:
 
   apiDeployment:
     Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - "apiSearchGetCall"
+      - "apiSearchOptionsCall"
+      - "apiUploadPutCall"
+      - "apiUploadOptionsCall"
     Properties:
       RestApiId: !Ref restApi
 
@@ -303,7 +312,7 @@ Resources:
                   - - "arn:aws:s3:::"
                     - !Ref b2
                     - /*
-  
+
   openSearch:
     Type: AWS::Elasticsearch::Domain
     Properties:
