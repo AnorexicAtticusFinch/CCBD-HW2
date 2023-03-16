@@ -48,7 +48,6 @@ Resources:
   b1:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: frontend-b1
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: frontend/index.html
@@ -74,8 +73,6 @@ Resources:
 
   b2:
     Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "photos-b2"
 
   restApi:
     Type: "AWS::ApiGateway::RestApi"
