@@ -14,6 +14,7 @@ Resources:
       Handler: lambda_function.main
       Runtime: python3.7
       Policies:
+        - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
             BucketName: !Ref b2
         ### Rekognition
@@ -34,6 +35,7 @@ Resources:
       Handler: lambda_function.main
       Runtime: python3.7
       Policies:
+        - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
             BucketName: !Ref b2
         ### Lex
