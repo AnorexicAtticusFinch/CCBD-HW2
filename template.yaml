@@ -1,0 +1,352 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+### b2 photo permissions public reads
+
+Resources:
+  lf1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: index-photos-lf1
+      Tracing: Active
+      Timeout: 30
+      CodeUri: backend/lf1.py
+      Handler: lambda_function.main
+      Runtime: python3.7
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref b2
+        ### Rekognition
+      Environment:
+        Variables:
+        B2_BUCKET_NAME: !Ref b2
+        ### Opensearch urls
+      Event:
+        ### B2 invocation
+  
+  lf2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: search-photos-lf2
+      Tracing: Active
+      Timeout: 30
+      CodeUri: backend/lf2.py
+      Handler: lambda_function.main
+      Runtime: python3.7
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref b2
+        ### Lex
+      Environment:
+        Variables:
+        B2_BUCKET_NAME: !Ref b2
+        ### Opensearch urls
+        ### Lex info
+
+  b1:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: frontend-b1
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: frontend/index.html
+        ErrorDocument: frontend/index.html
+
+  b1BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: PublicWebsitePolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: "s3:GetObject"
+            Resource: !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Ref b1
+                - /*
+      Bucket: !Ref b1
+
+  b2:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "photos-b2"
+
+  restApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      ApiKeySourceType: HEADER
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: ccbd-assignment-2
+
+  apiSearchResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt 
+        - restApi
+        - RootResourceId
+      PathPart: search
+      RestApiId: !Ref restApi
+
+  apiSearchGetCall:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        ConnectionType: INTERNET
+        Credentials: !GetAtt 
+          - apiLf2IamRole
+          - Arn
+        IntegrationHttpMethod: GET
+        PassthroughBehavior: WHEN_NO_MATCH
+        TimeoutInMillis: 29000
+        Type: AWS
+        Uri: !Sub >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: ''
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Headers: >-
+                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            StatusCode: 200
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+          StatusCode: 200
+      OperationName: lambda
+      ResourceId: !Ref apiSearchResource
+      RestApiId: !Ref restApi
+
+  apiSearchOptionsCall:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: ''
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Headers: >-
+                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            StatusCode: 200
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+          ResponseModels:
+            application/json: Empty
+          StatusCode: 200
+      ResourceId: !Ref apiSearchResource
+      RestApiId: !Ref restApi
+
+  apiUploadResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt 
+        - restApi
+        - RootResourceId
+      PathPart: upload
+      RestApiId: !Ref restApi
+
+  apiUploadPutCall:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: PUT
+      Integration:
+        ConnectionType: INTERNET
+        Credentials: !GetAtt 
+          - apiB2IamRole
+          - Arn
+        IntegrationHttpMethod: PUT
+        PassthroughBehavior: WHEN_NO_MATCH
+        TimeoutInMillis: 29000
+        Type: AWS
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: ''
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''PUT,OPTIONS'''
+              method.response.header.Access-Control-Allow-Headers: >-
+                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            StatusCode: 200
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+          StatusCode: 200
+      OperationName: lambda
+      ResourceId: !Ref apiUploadResource
+      RestApiId: !Ref restApi
+
+  apiUploadOptionsCall:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+        IntegrationResponses:
+          - ResponseTemplates:
+              application/json: ''
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''PUT,OPTIONS'''
+              method.response.header.Access-Control-Allow-Headers: >-
+                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+            StatusCode: 200
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+          ResponseModels:
+            application/json: Empty
+          StatusCode: 200
+      ResourceId: !Ref apiUploadResource
+      RestApiId: !Ref restApi
+
+  apiModel:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      ContentType: application/json
+      RestApiId: !Ref restApi
+      Schema: {}
+
+  apiStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref apiDeployment
+      RestApiId: !Ref restApi
+      StageName: dev
+
+  apiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref restApi
+
+  apiLf2IamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: LambdaAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'lambda:*'
+                Resource: !GetAtt 
+                  - lf2
+                  - Arn
+
+  apiB2IamRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: S3BucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 's3:*'
+                Resource: !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Ref b2
+                - /*
+  
+  openSearch:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: ccbdassignment2
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "arn:aws:es:*:*:domain/ccbdassignment2/*"
+      ClusterConfig:
+        DedicatedMasterEnabled: "false"
+        InstanceCount: "1"
+        ZoneAwarenessEnabled: "false"
+        InstanceType: "t2.small.elasticsearch"
+      EBSOptions:
+        EBSEnabled: true
+        Iops: 0
+        VolumeSize: 10
+        VolumeType: "gp3"
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: masterUserCCBDHW2
+          MasterUserPassword: ILikeBigMuttsAndICannotL13!
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt
+      - b1
+      - WebsiteURL
+    Description: URL for website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join
+      - ""
+      - - "https://"
+        - !GetAtt
+          - b1
+          - DomainName
+    Description: Name of S3 bucket to hold website content      
