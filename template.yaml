@@ -328,6 +328,8 @@ Resources:
         VolumeType: "gp3"
       DomainEndpointOptions:
         EnforceHTTPS: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       AdvancedSecurityOptions:
         Enabled: true
         InternalUserDatabaseEnabled: true
