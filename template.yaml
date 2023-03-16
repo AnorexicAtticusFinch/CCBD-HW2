@@ -50,8 +50,8 @@ Resources:
     Properties:
       AccessControl: PublicRead
       WebsiteConfiguration:
-        IndexDocument: frontend/index.html
-        ErrorDocument: frontend/index.html
+        IndexDocument: index.html
+        ErrorDocument: index.html
 
   b1BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -320,7 +320,7 @@ Resources:
         DedicatedMasterEnabled: "false"
         InstanceCount: "1"
         ZoneAwarenessEnabled: "false"
-        InstanceType: "t2.small.elasticsearch"
+        InstanceType: "t3.small.search"
       EBSOptions:
         EBSEnabled: true
         Iops: 0
