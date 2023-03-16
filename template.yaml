@@ -337,10 +337,3 @@ Resources:
         MasterUserOptions:
           MasterUserName: masterUserCCBDHW2
           MasterUserPassword: ILikeBigMuttsAndICannotL13!
-
-Outputs:
-  WebsiteURL:
-    Value: !GetAtt
-      - b1
-      - WebsiteURL
-    Description: URL for website hosted on S3
