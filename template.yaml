@@ -22,7 +22,7 @@ Resources:
         Variables:
           B2_BUCKET_NAME: !Ref b2
         ### Opensearch urls
-      Event:
+      # Event:
         ### B2 invocation
   
   lf2:
