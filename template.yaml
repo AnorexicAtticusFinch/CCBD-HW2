@@ -12,7 +12,7 @@ Resources:
       Timeout: 30
       CodeUri: ./backend/
       Handler: lf1.main
-      Runtime: python3.7
+      Runtime: python3.9
       Policies:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
@@ -33,7 +33,7 @@ Resources:
       Timeout: 30
       CodeUri: ./backend/
       Handler: lf2.main
-      Runtime: python3.7
+      Runtime: python3.9
       Policies:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
