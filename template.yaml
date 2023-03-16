@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 ### b2 photo permissions public reads
+### api gateway
 
 Resources:
   lf1:
@@ -129,21 +130,41 @@ Resources:
 
   apiSearchGetMethod:
     Type: AWS::ApiGateway::Method
+    DependsOn:
+      - apiSearchResource
     Properties:
-      ApiKeyRequired: false
-      AuthorizationType: NONE
-      HttpMethod: GET
-      Integration:
-        ConnectionType: INTERNET
-        Credentials: !GetAtt apiLf2IamRole.Arn
-        IntegrationHttpMethod: GET
-        PassthroughBehavior: WHEN_NO_MATCH
-        TimeoutInMillis: 29000
-        Type: AWS_PROXY
-        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations'
-      OperationName: search
-      ResourceId: !Ref apiSearchResource
       RestApiId: !Ref apiRest
+      ResourceId: !Ref apiSearchResource
+      HttpMethod: "GET"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: 
+        "method.request.querystring.q": false
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": "Empty"
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref apiSearchResource
+        ContentHandling: "CONVERT_TO_TEXT"
+        IntegrationHttpMethod: "POST"
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_TEMPLATES"
+        RequestTemplates: 
+          "application/json": |
+              {
+                   "q": "$input.params('q')"
+              }
+        TimeoutInMillis: 29000
+        Type: "AWS"
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations'
 
   apiModel:
     Type: AWS::ApiGateway::Model
