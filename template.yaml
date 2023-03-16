@@ -320,7 +320,7 @@ Resources:
         DedicatedMasterEnabled: "false"
         InstanceCount: "1"
         ZoneAwarenessEnabled: "false"
-        InstanceType: "t3.small.search"
+        InstanceType: "t3.small.elasticsearch"
       EBSOptions:
         EBSEnabled: true
         Iops: 0
