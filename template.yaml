@@ -305,7 +305,7 @@ Resources:
                     - /*
   
   openSearch:
-    Type: AWS::OpenSearchService::Domain
+    Type: AWS::Elasticsearch::Domain
     Properties:
       DomainName: ccbdassignment2
       AccessPolicies:
@@ -316,7 +316,7 @@ Resources:
               AWS: "*"
             Action: "es:*"
             Resource: "arn:aws:es:*:*:domain/ccbdassignment2/*"
-      ClusterConfig:
+      ElasticsearchClusterConfig:
         DedicatedMasterEnabled: "false"
         InstanceCount: "1"
         ZoneAwarenessEnabled: "false"
