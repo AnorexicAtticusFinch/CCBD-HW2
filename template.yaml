@@ -330,6 +330,9 @@ Resources:
         EnforceHTTPS: true
       NodeToNodeEncryptionOptions:
         Enabled: true
+      EncryptionAtRestOptions:
+        Enabled: true
+        KmsKeyId: b4c0bb91-eaf2-4501-9d80-beac82d626de
       AdvancedSecurityOptions:
         Enabled: true
         InternalUserDatabaseEnabled: true
