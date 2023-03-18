@@ -85,7 +85,7 @@ Resources:
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:Put
-            Function: !GetAtt lf1.Arn
+            Function: !GetAtt [lf1, Arn]
 
   # openSearch:
   #   Type: AWS::Elasticsearch::Domain
@@ -391,7 +391,7 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt lf2.Arn
+      FunctionName: !GetAtt lf1.Arn
       Principal: s3.amazonaws.com
       SourceArn:
         Fn::Sub: arn:aws:s3:::${B2BUCKETNAME}
