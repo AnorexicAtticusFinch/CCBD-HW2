@@ -79,6 +79,7 @@ Resources:
 
   b2:
     Type: AWS::S3::Bucket
+    DependsOn: lf1B2Invoke
     Properties:
       BucketName: !Ref B2BUCKETNAME
       NotificationConfiguration:
@@ -392,10 +393,8 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt lf2.Arn
       Principal: s3.amazonaws.com
-      SourceArn: !Join
-            - ""
-            - - "arn:aws:s3:::"
-              - !Ref b2
+      SourceArn:
+        Fn::Sub: arn:aws:s3:::${B2BUCKETNAME}
 
 Outputs:
   WebsiteURL:
