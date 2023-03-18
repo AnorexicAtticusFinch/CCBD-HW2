@@ -8,7 +8,7 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   B2BUCKETNAME:
     Type: String
-    Default: b2-photos-bucket
+    Default: b2-ccbd-hw2-s23-as
 
 Resources:
   lf1:
