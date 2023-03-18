@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
-### b2 photo permissions public reads
-### api gateway
+# b2 photo permissions public reads
+# Rekognition ???
+# Lex ???
 
 Resources:
   lf1:
@@ -18,13 +19,13 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
             BucketName: !Ref b2
-        ### Rekognition
+        - RekognitionDetectOnlyPolicy
+        - RekognitionFacesPolicy
+        - RekognitionLabelsPolicy
       Environment:
         Variables:
           B2_BUCKET_NAME: !Ref b2
-        ### Opensearch urls
-      # Event:
-        ### B2 invocation
+          OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
   
   lf2:
     Type: AWS::Serverless::Function
@@ -39,12 +40,11 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
             BucketName: !Ref b2
-        ### Lex
+        - AmazonLexFullAccess
       Environment:
         Variables:
           B2_BUCKET_NAME: !Ref b2
-        ### Opensearch urls
-        ### Lex info
+          OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
 
   b1:
     Type: AWS::S3::Bucket
@@ -74,6 +74,11 @@ Resources:
 
   b2:
     Type: AWS::S3::Bucket
+    Properties:
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:Put
+            Function: !GetAtt lf1.Arn
 
   openSearch:
     Type: AWS::Elasticsearch::Domain
@@ -118,8 +123,12 @@ Resources:
       ApiKeySourceType: HEADER
       EndpointConfiguration:
         Types:
-          - EDGE
+          - REGIONAL
       Name: ccbd-assignment-2
+      BinaryMediaTypes:
+        - "image/jpeg"
+        - "image/jpg"
+        - "image/png"
   
   apiSearchResource:
     Type: AWS::ApiGateway::Resource
@@ -147,8 +156,9 @@ Resources:
         ResponseParameters: 
           "method.response.header.Access-Control-Allow-Origin": false
         StatusCode: "200"
-      Integration: 
+      Integration:
         CacheNamespace: !Ref apiSearchResource
+        Credentials: !GetAtt apiLf2IamRole.Arn
         ContentHandling: "CONVERT_TO_TEXT"
         IntegrationHttpMethod: "POST"
         IntegrationResponses: 
@@ -165,6 +175,144 @@ Resources:
         TimeoutInMillis: 29000
         Type: "AWS"
         Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lf2.Arn}/invocations'
+
+  apiSearchOptionMethod:
+    Type: AWS::ApiGateway::Method
+    DependsOn:
+      - apiSearchResource
+    Properties:
+      RestApiId: !Ref apiRest
+      ResourceId: !Ref apiSearchResource
+      HttpMethod: "OPTIONS"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: {}
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": "Empty"
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Headers": false
+          "method.response.header.Access-Control-Allow-Methods": false
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref apiSearchResource
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'"
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestTemplates: 
+          "application/json": "{\"statusCode\": 200}"
+        TimeoutInMillis: 29000
+        Type: "MOCK"
+
+  apiUploadResource:
+    Type: AWS::ApiGateway::Resource
+    DependsOn:
+      - apiRest
+    Properties:
+      RestApiId: !Ref apiRest
+      PathPart: "upload"
+      ParentId: !GetAtt apiRest.RootResourceId
+
+  apiUploadResourceBucket:
+    Type: AWS::ApiGateway::Resource
+    DependsOn:
+      - apiUploadResource
+    Properties:
+      RestApiId: !Ref apiRest
+      PathPart: "{bucket}"
+      ParentId: !Ref apiUploadResource
+
+  apiUploadResourceFile:
+    Type: AWS::ApiGateway::Resource
+    DependsOn:
+      - apiUploadResourceBucket
+    Properties:
+      RestApiId: !Ref apiRest
+      PathPart: "{filename}"
+      ParentId: !Ref apiUploadResourceBucket
+
+  apiUploadPutMethod:
+    Type: AWS::ApiGateway::Method
+    DependsOn:
+      - apiUploadResourceFile
+      - apiB2IamRole
+    Properties:
+      RestApiId: !Ref apiRest
+      ResourceId: !Ref apiUploadResourceFile
+      HttpMethod: "PUT"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: 
+        "method.request.header.x-amz-meta-customLabels": false
+        "method.request.path.bucket": true
+        "method.request.path.filename": true
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": "Empty"
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref apiUploadResourceFile
+        Credentials: !GetAtt apiB2IamRole.Arn
+        IntegrationHttpMethod: "PUT"
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestParameters: 
+          "integration.request.header.x-amz-meta-customLabels": "method.request.header.x-amz-meta-customLabels"
+          "integration.request.path.bucket": "method.request.path.bucket"
+          "integration.request.path.filename": "method.request.path.filename"
+        TimeoutInMillis: 29000
+        Type: "AWS"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:s3:path/{bucket}/{filename}"
+
+  apiUploadOptionMethod:
+    Type: AWS::ApiGateway::Method
+    DependsOn:
+      - apiUploadResourceFile
+    Properties:
+      RestApiId: !Ref apiRest
+      ResourceId: !Ref apiUploadResourceFile
+      HttpMethod: "OPTIONS"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: 
+        "method.request.header.x-amz-meta-customLabels": false
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": "Empty"
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Headers": false
+          "method.response.header.Access-Control-Allow-Methods": false
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref apiUploadResourceFile
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-Meta-CustomLabels'"
+            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,PUT'"
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestTemplates: 
+          "application/json": "{\"statusCode\": 200}"
+        TimeoutInMillis: 29000
+        Type: "MOCK"
 
   apiModel:
     Type: AWS::ApiGateway::Model
@@ -184,6 +332,9 @@ Resources:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
       - apiSearchGetMethod
+      - apiSearchOptionMethod
+      - apiUploadPutMethod
+      - apiUploadOptionMethod
     Properties:
       RestApiId: !Ref apiRest
 
@@ -210,13 +361,54 @@ Resources:
                 Action: 'lambda:*'
                 Resource: !GetAtt lf2.Arn
 
+  apiB2IamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      RoleName: "apiB2IamRole"
+      AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"apigateway.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+      MaxSessionDuration: 3600
+
+  apiB2IamPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - apiB2IamRole
+    Properties:
+      PolicyName: apiB2IamPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:PutObject'
+            Resource: !Join
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - !Ref b2
+                    - /*
+      Roles: 
+        - !Ref apiB2IamRole
+
   lf2ApiGatewayInvoke:
     Type: AWS::Lambda::Permission
+    DependsOn: lf2
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt lf2.Arn
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiRest}/*/*/*
+
+  lf1B2Invoke:
+    Type: AWS::Lambda::Permission
+    DependsOn: lf1
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt lf2.Arn
+      Principal: s3.amazonaws.com
+      SourceArn: !Join
+            - ""
+            - - "arn:aws:s3:::"
+              - !Ref b2
 
 Outputs:
   WebsiteURL:
