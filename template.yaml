@@ -5,6 +5,11 @@ Transform: AWS::Serverless-2016-10-31
 # Rekognition ???
 # Lex ???
 
+Parameters:
+  B2_BUCKET_NAME:
+    Type: String
+    Default: b2-photos-bucket
+
 Resources:
   lf1:
     Type: AWS::Serverless::Function
@@ -18,13 +23,13 @@ Resources:
       Policies:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
-            BucketName: !Ref b2
+            BucketName: B2_BUCKET_NAME
         - RekognitionDetectOnlyPolicy
         - RekognitionFacesPolicy
         - RekognitionLabelsPolicy
       Environment:
         Variables:
-          B2_BUCKET_NAME: !Ref b2
+          B2_BUCKET_NAME: B2_BUCKET_NAME
           OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
   
   lf2:
@@ -39,11 +44,11 @@ Resources:
       Policies:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
-            BucketName: !Ref b2
+            BucketName: B2_BUCKET_NAME
         - AmazonLexFullAccess
       Environment:
         Variables:
-          B2_BUCKET_NAME: !Ref b2
+          B2_BUCKET_NAME: B2_BUCKET_NAME
           OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
 
   b1:
@@ -75,6 +80,7 @@ Resources:
   b2:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName: !Ref B2_BUCKET_NAME
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:Put
