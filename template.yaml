@@ -139,8 +139,6 @@ Resources:
 
   apiSearchGetMethod:
     Type: AWS::ApiGateway::Method
-    DependsOn:
-      - apiSearchResource
     Properties:
       RestApiId: !Ref apiRest
       ResourceId: !Ref apiSearchResource
@@ -178,8 +176,6 @@ Resources:
 
   apiSearchOptionMethod:
     Type: AWS::ApiGateway::Method
-    DependsOn:
-      - apiSearchResource
     Properties:
       RestApiId: !Ref apiRest
       ResourceId: !Ref apiSearchResource
@@ -213,8 +209,6 @@ Resources:
 
   apiUploadResource:
     Type: AWS::ApiGateway::Resource
-    DependsOn:
-      - apiRest
     Properties:
       RestApiId: !Ref apiRest
       PathPart: "upload"
@@ -222,8 +216,6 @@ Resources:
 
   apiUploadResourceBucket:
     Type: AWS::ApiGateway::Resource
-    DependsOn:
-      - apiUploadResource
     Properties:
       RestApiId: !Ref apiRest
       PathPart: "{bucket}"
@@ -231,8 +223,6 @@ Resources:
 
   apiUploadResourceFile:
     Type: AWS::ApiGateway::Resource
-    DependsOn:
-      - apiUploadResourceBucket
     Properties:
       RestApiId: !Ref apiRest
       PathPart: "{filename}"
@@ -240,9 +230,6 @@ Resources:
 
   apiUploadPutMethod:
     Type: AWS::ApiGateway::Method
-    DependsOn:
-      - apiUploadResourceFile
-      - apiB2IamRole
     Properties:
       RestApiId: !Ref apiRest
       ResourceId: !Ref apiUploadResourceFile
@@ -280,8 +267,6 @@ Resources:
 
   apiUploadOptionMethod:
     Type: AWS::ApiGateway::Method
-    DependsOn:
-      - apiUploadResourceFile
     Properties:
       RestApiId: !Ref apiRest
       ResourceId: !Ref apiUploadResourceFile
@@ -371,8 +356,6 @@ Resources:
 
   apiB2IamPolicy:
     Type: AWS::IAM::Policy
-    DependsOn:
-      - apiB2IamRole
     Properties:
       PolicyName: apiB2IamPolicy
       PolicyDocument:
@@ -391,7 +374,6 @@ Resources:
 
   lf2ApiGatewayInvoke:
     Type: AWS::Lambda::Permission
-    DependsOn: lf2
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt lf2.Arn
@@ -400,7 +382,6 @@ Resources:
 
   lf1B2Invoke:
     Type: AWS::Lambda::Permission
-    DependsOn: lf1
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt lf2.Arn
