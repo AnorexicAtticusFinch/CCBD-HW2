@@ -45,7 +45,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
         - S3FullAccessPolicy:
             BucketName: B2BUCKETNAME
-        - AmazonLexFullAccess: {}
+        - AmazonLexFullAccess
       Environment:
         Variables:
           B2_BUCKET_NAME: B2BUCKETNAME
