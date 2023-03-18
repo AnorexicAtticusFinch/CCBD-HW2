@@ -30,7 +30,7 @@ Resources:
       Environment:
         Variables:
           B2_BUCKET_NAME: B2BUCKETNAME
-          #OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
+          OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
   
   lf2:
     Type: AWS::Serverless::Function
@@ -49,7 +49,7 @@ Resources:
       Environment:
         Variables:
           B2_BUCKET_NAME: B2BUCKETNAME
-          #OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
+          OPENSEARCH_LINK: !GetAtt openSearch.DomainEndpoint
 
   b1:
     Type: AWS::S3::Bucket
@@ -87,42 +87,42 @@ Resources:
           - Event: s3:ObjectCreated:Put
             Function: !GetAtt [lf1, Arn]
 
-  # openSearch:
-  #   Type: AWS::Elasticsearch::Domain
-  #   Properties:
-  #     DomainName: ccbdassignment2
-  #     AccessPolicies:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: "Allow"
-  #           Principal:
-  #             AWS: "*"
-  #           Action: "es:*"
-  #           Resource: "arn:aws:es:*:*:domain/ccbdassignment2/*"
-  #     ElasticsearchClusterConfig:
-  #       DedicatedMasterEnabled: "false"
-  #       InstanceCount: "1"
-  #       ZoneAwarenessEnabled: "false"
-  #       InstanceType: "t3.small.elasticsearch"
-  #     ElasticsearchVersion: 7.1
-  #     EBSOptions:
-  #       EBSEnabled: true
-  #       Iops: 3000
-  #       VolumeSize: 10
-  #       VolumeType: "gp3"
-  #     DomainEndpointOptions:
-  #       EnforceHTTPS: true
-  #     NodeToNodeEncryptionOptions:
-  #       Enabled: true
-  #     EncryptionAtRestOptions:
-  #       Enabled: true
-  #       KmsKeyId: b4c0bb91-eaf2-4501-9d80-beac82d626de
-  #     AdvancedSecurityOptions:
-  #       Enabled: true
-  #       InternalUserDatabaseEnabled: true
-  #       MasterUserOptions:
-  #         MasterUserName: masterUserCCBDHW2
-  #         MasterUserPassword: ILikeBigMuttsAndICannotL13!
+  openSearch:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: ccbdassignment2
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "arn:aws:es:*:*:domain/ccbdassignment2/*"
+      ElasticsearchClusterConfig:
+        DedicatedMasterEnabled: "false"
+        InstanceCount: "1"
+        ZoneAwarenessEnabled: "false"
+        InstanceType: "t3.small.elasticsearch"
+      ElasticsearchVersion: 7.1
+      EBSOptions:
+        EBSEnabled: true
+        Iops: 3000
+        VolumeSize: 10
+        VolumeType: "gp3"
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      EncryptionAtRestOptions:
+        Enabled: true
+        KmsKeyId: b4c0bb91-eaf2-4501-9d80-beac82d626de
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: masterUserCCBDHW2
+          MasterUserPassword: ILikeBigMuttsAndICannotL13!
 
   apiRest:
     Type: AWS::ApiGateway::RestApi
