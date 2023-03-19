@@ -44,7 +44,7 @@ def main(event, context):
     url = host + '/' + index + '/' + '_search/'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
-    resp = requests.post(url, data=json.dumps(obj).encode("utf-8"), headers=headers)
+    resp = requests.post(url, data=obj, headers=headers)
 
     print("Result:", resp.text)
     return labels
