@@ -35,7 +35,8 @@ function getBase64String(file) {
         base64String = reader.result.replace("data:", "").replace(/^.+,/, "");
         imageBase64Stringsep = base64String;
     }
-    reader.readAsDataURL(file);
+    
+    return reader.readAsDataURL(file);
 }
 
 function uploadPhoto() {
@@ -43,11 +44,14 @@ function uploadPhoto() {
 	var apigClient = apigClientFactory.newClient();
 	var file = document.getElementById('upload_image_path').files[0];
 
-	getBase64String(file).then((data) => {
+  console.log("Uploading photo")
+
+	// var returnedImage = getBase64String(file).then((data)
+    var data = getBase64String(file);
 		var file_type = file.type + ';base64';
 		var body = data;
 	    var params = {
-	      key: file.name,
+	      filename: file.name,
 	      bucket: 'ccbdhw2-b2-photos-bucket',
 	      'Content-Type': file.type,
 	      'x-amz-meta-customLabels': customtag.value,
@@ -55,11 +59,10 @@ function uploadPhoto() {
 	    };	
 
 	    apigClient
-	    .uploadBucketKeyPut(params, body)
+	    .uploadBucketFilenamePut(params, body)
       	.then(function (res) {
       		if (res.status == 200) {
 	          document.getElementById('uploadText').innerHTML = 'Image uploaded successfully!';
         	}
       	});	
-      });
 }
