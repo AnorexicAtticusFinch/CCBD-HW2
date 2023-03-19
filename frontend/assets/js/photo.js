@@ -45,24 +45,37 @@ function uploadPhoto() {
 	var file = document.getElementById('upload_image_path').files[0];
 
   console.log("Uploading photo")
+  console.log(file.name);
+  console.log(file.type);
+  console.log(customtag.value);
 
-	// var returnedImage = getBase64String(file).then((data)
-    var data = getBase64String(file);
-		var file_type = file.type + ';base64';
-		var body = data;
-	    var params = {
-	      filename: file.name,
-	      bucket: 'ccbdhw2-b2-photos-bucket',
-	      'Content-Type': file.type,
-	      'x-amz-meta-customLabels': customtag.value,
-	      'Accept': 'image/*'
-	    };	
+  file.constructor = () => file;
 
-	    apigClient
-	    .uploadBucketFilenamePut(params, body)
-      	.then(function (res) {
-      		if (res.status == 200) {
-	          document.getElementById('uploadText').innerHTML = 'Image uploaded successfully!';
-        	}
-      	});	
+
+  var params = {
+    filename: file.name,
+    bucket: 'ccbdhw2-b2-photos-bucket',
+    'x-amz-meta-customLabels': customtag.value,
+  };	
+
+  var additionalParams = {
+      headers: {
+          'Content-Type': file.type,
+      }
+  };  
+
+  var reader = new FileReader();
+
+  reader.onload = function (event) {
+      body = btoa(event.target.result);
+      return apigClient.uploadBucketFilenamePut(params, file, additionalParams)
+      .then(function(result) {
+          console.log(result);
+          alert('Image uploaded successfully!')
+      })
+      .catch(function(error) {
+          console.log(error);
+      })
+  }
+  reader.readAsBinaryString(file);
 }

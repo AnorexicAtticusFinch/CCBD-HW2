@@ -2,6 +2,7 @@ import json
 import time
 import boto3
 import os
+import requests
 
 
 def main(event, context):
