@@ -24,7 +24,7 @@ def main(event, context):
 
 
     #OpenSearch query
-    host = os.environ.get('OPENSEARCH_LINK')
+    host = "https://" + os.environ.get('OPENSEARCH_LINK')
     index = 'photos'
     url = host + '/' + index + '/' + '_search'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
