@@ -7,22 +7,24 @@ function searchPhoto() {
     .searchGet({q: searchText}, {})
     .then(function (res) {
 
-      res_data = res.data;
+      res_data = res.data.body;
+      var res_data = JSON.parse(res_data);
+
+      console.log(res_data)
 
       if (res_data.length == 0) {
         document.getElementById('display').innerHTML = "Could not find any matching image. Please try again!";
       }
 
-      res_data.forEach(function (obj) {
+      for (var i = 0, len = res_data.length; i < len; i++) {
         var img = new Image();
-        console.log(obj);
-        img.src = obj;
+        img.src = res_data[i];
         img.setAttribute('class', 'banner-img');
         img.setAttribute('alt', 'effy');
         document.getElementById('display').innerHTML = "Image search results : ";
         document.getElementById('img-container').appendChild(img);
         document.getElementById('display').style.display = 'block';
-      });
+      }
     })
     .catch(function (result) {});
 }

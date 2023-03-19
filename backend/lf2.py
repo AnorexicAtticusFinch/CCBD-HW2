@@ -29,16 +29,17 @@ def main(event, context):
     index = 'photos'
     url = host + '/' + index + '/' + '_search'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
-    query = {
-        "size": 5,
-        "query" : {
-            "match" : {
-              "labels": "dog"
-            }
-        }
-    }
 
     for q in query:
+        query = {
+            "size": 5,
+            "query" : {
+                "match" : {
+                  "labels": q
+                }
+            }
+        }
+        
         r = requests.get(url, json=query, headers=headers)
         r.raise_for_status()
         body = r.json()
