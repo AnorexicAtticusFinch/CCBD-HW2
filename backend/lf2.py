@@ -2,7 +2,7 @@ import json
 import datetime
 import boto3
 
-def lambda_handler(event, context):
+def main(event, context):
     print("LF2")
 
     photos = []
