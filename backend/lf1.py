@@ -45,7 +45,7 @@ def main(event, context):
     url = host + '/' + index + '/' + '_doc/'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
-    resp = requests.put(url + str(file_name), json=json.dumps(obj), headers=headers)
+    resp = requests.put(url + str(file_name), json=obj, headers=headers)
 
     print("Result: ", resp.text)
     print("Status code: ", resp.status_code)

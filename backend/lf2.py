@@ -2,6 +2,7 @@ import json
 import datetime
 import boto3
 import os
+import requests
 
 def main(event, context):
     print("LF2")
@@ -28,9 +29,17 @@ def main(event, context):
     index = 'photos'
     url = host + '/' + index + '/' + '_search'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
+    query = {
+        "size": 5,
+        "query" : {
+            "match" : {
+              "labels": "dog"
+            }
+        }
+    }
 
     for q in query:
-        r = requests.get(url + '?=' + q, headers=headers)
+        r = requests.get(url, json=query, headers=headers)
         r.raise_for_status()
         body = r.json()
         items = body["hits"]["hits"]
