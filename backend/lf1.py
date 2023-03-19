@@ -12,6 +12,7 @@ def main(event, context):
     s3 = event['Records'][0]['s3']
     bucket_name = s3['bucket']['name']
     file_key_name = s3['object']['key']
+    file_name = file_key_name.split(".")[0]
 
     r = s3_client.head_object(Bucket=bucket_name, Key=file_key_name)
 
@@ -35,7 +36,7 @@ def main(event, context):
     obj = {
         'objectKey': file_key_name,
         'bucket': bucket_name,
-        'createdTimestamp': time.time(),
+        'createdTimestamp': int(time.time()),
         'labels': labels
     }
 
@@ -44,7 +45,7 @@ def main(event, context):
     url = host + '/' + index + '/' + '_doc/'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
-    resp = requests.put(url + str(file_key_name), json=json.dumps(obj).encode("utf-8"), headers=headers)
+    resp = requests.put(url + str(file_name), json=json.dumps(obj), headers=headers)
 
     print("Result: ", resp.text)
     print("Status code: ", resp.status_code)
