@@ -26,3 +26,40 @@ function searchPhoto() {
     })
     .catch(function (result) {});
 }
+
+function getBase64String(file) {
+
+    var reader = new FileReader();
+     
+    reader.onload = function () {
+        base64String = reader.result.replace("data:", "").replace(/^.+,/, "");
+        imageBase64Stringsep = base64String;
+    }
+    reader.readAsDataURL(file);
+}
+
+function uploadPhoto() {
+
+	var apigClient = apigClientFactory.newClient();
+	var file = document.getElementById('upload_image_path').files[0];
+
+	getBase64String(file).then((data) => {
+		var file_type = file.type + ';base64';
+		var body = data;
+	    var params = {
+	      key: file.name,
+	      bucket: 'ccbdhw2-b2-photos-bucket',
+	      'Content-Type': file.type,
+	      'x-amz-meta-customLabels': customtag.value,
+	      'Accept': 'image/*'
+	    };	
+
+	    apigClient
+	    .uploadBucketKeyPut(params, body)
+      	.then(function (res) {
+      		if (res.status == 200) {
+	          document.getElementById('uploadText').innerHTML = 'Image uploaded successfully!';
+        	}
+      	});	
+      });
+}
