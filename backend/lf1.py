@@ -41,11 +41,12 @@ def main(event, context):
 
     host = os.environ.get('OPENSEARCH_LINK')
     index = 'photos'
-    url = host + '/' + index + '/' + '_search/'
+    url = host + '/' + index + '/' + '_doc/'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
-    resp = requests.post(url, data=obj, headers=headers)
+    resp = requests.put(url + str(file_key_name), json=json.dumps(obj).encode("utf-8"), headers=headers)
 
-    print("Result:", resp.text)
+    print("Result: ", resp.text)
+    print("Status code: ", resp.status_code)
     return labels
 
