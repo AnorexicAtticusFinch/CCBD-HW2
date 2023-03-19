@@ -3,6 +3,9 @@ function searchPhoto() {
   var apigClient = apigClientFactory.newClient();
   var searchText = document.getElementById('search-text').value;
 
+  document.getElementById('display').value = ""
+  document.getElementById('img-container').value = ""
+
   apigClient
     .searchGet({q: searchText}, {})
     .then(function (res) {
@@ -20,7 +23,7 @@ function searchPhoto() {
         var img = new Image();
         img.src = res_data[i];
         img.setAttribute('class', 'banner-img');
-        img.setAttribute('alt', 'effy');
+        img.setAttribute('alt', 'img');
         document.getElementById('display').innerHTML = "Image search results : ";
         document.getElementById('img-container').appendChild(img);
         document.getElementById('display').style.display = 'block';

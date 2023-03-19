@@ -81,6 +81,12 @@ Resources:
     DependsOn: lf1B2Invoke
     Properties:
       BucketName: !Ref B2BUCKETNAME
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls : false
+        BlockPublicPolicy : false
+        IgnorePublicAcls : false
+        RestrictPublicBuckets : false
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:Put
