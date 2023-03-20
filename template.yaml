@@ -92,6 +92,24 @@ Resources:
           - Event: s3:ObjectCreated:Put
             Function: !GetAtt [lf1, Arn]
 
+  b2BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: PublicWebsitePolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjectsB2
+            Effect: Allow
+            Principal: '*'
+            Action: "s3:GetObject"
+            Resource: !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Ref b2
+                - /*
+      Bucket: !Ref b2
+
   # openSearch:
   #   Type: AWS::Elasticsearch::Domain
   #   Properties:
