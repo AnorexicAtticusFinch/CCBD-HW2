@@ -363,8 +363,8 @@ Resources:
       Enabled: true
       Value: "superduperboomerlooperstuper"
       StageKeys:
-        - ApiId: !Ref apiRest
-          Stage: !Ref apiStage
+        - RestApiId: !Ref apiRest
+          StageName: dev
     
   apiUsagePlanKey:
     Type: 'AWS::ApiGateway::UsagePlanKey'
