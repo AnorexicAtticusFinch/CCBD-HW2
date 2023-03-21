@@ -3,6 +3,7 @@ import datetime
 import boto3
 import os
 import requests
+import time 
 
 def main(event, context):
     print("LF2")
@@ -13,7 +14,7 @@ def main(event, context):
     print("txt", txt)
 
     client = boto3.client("lexv2-runtime")
-    response = client.recognize_text(botId='ERUDNYDIAN', botAliasId='USVXTEBHZN', localeId='en_US', sessionId='test_session', text=txt)
+    response = client.recognize_text(botId='ERUDNYDIAN', botAliasId='USVXTEBHZN', localeId='en_US', sessionId='test_session' + str(time.time()), text=txt)
     print("RESP", response['sessionState']['intent']['slots'])
     response_slots = response['sessionState']['intent']['slots']
 
