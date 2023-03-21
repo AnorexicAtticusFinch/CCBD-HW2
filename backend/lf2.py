@@ -3,7 +3,8 @@ import datetime
 import boto3
 import os
 import requests
-import time 
+import time
+import inflection
 
 def main(event, context):
     print("LF2")
@@ -41,6 +42,8 @@ def main(event, context):
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
     query = set(query)
+    query = [inflection.singularize(q) for q in query]
+    print("QUERY:", query)
     esq = {
         "query": {
             "match": {

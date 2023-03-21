@@ -3,7 +3,7 @@ import time
 import boto3
 import os
 import requests
-
+import inflection
 
 def main(event, context):
     print("LF1")
@@ -32,6 +32,8 @@ def main(event, context):
                 labels.append(cl)
 
     print(labels)
+    labels = [inflection.singularize(l) for l in labels]
+    print(labels)
 
     obj = {
         'objectKey': file_key_name,
@@ -50,4 +52,3 @@ def main(event, context):
     print("Result: ", resp.text)
     print("Status code: ", resp.status_code)
     return labels
-
