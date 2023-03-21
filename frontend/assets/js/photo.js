@@ -3,9 +3,6 @@ function searchPhoto() {
   var apigClient = apigClientFactory.newClient();
   var searchText = document.getElementById('search-text').value;
 
-  document.getElementById('display').value = ""
-  document.getElementById('img-container').value = ""
-
   apigClient
     .searchGet({q: searchText}, {})
     .then(function (res) {
@@ -13,10 +10,10 @@ function searchPhoto() {
       res_data = res.data.body;
       var res_data = JSON.parse(res_data);
 
-      console.log(res_data)
+      console.log("RESULT: ", res_data)
 
       if (res_data.length == 0) {
-        document.getElementById('display').innerHTML = "Could not find any matching image. Please try again!";
+        document.getElementById('img-container').innerHTML = "Could not find any matching image. Please try again!";
       }
 
       for (var i = 0, len = res_data.length; i < len; i++) {
@@ -24,9 +21,8 @@ function searchPhoto() {
         img.src = res_data[i];
         img.setAttribute('class', 'banner-img');
         img.setAttribute('alt', 'img');
-        document.getElementById('display').innerHTML = "Image search results : ";
+        document.getElementById('img-container').innerHTML = "Image search results : ";
         document.getElementById('img-container').appendChild(img);
-        document.getElementById('display').style.display = 'block';
       }
     })
     .catch(function (result) {});

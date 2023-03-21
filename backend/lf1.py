@@ -28,7 +28,7 @@ def main(event, context):
         print("customlabels : ", customlabels)
         for cl in customlabels:
             cl = cl.lower().strip()
-            if cl not in lables:
+            if cl not in labels:
                 labels.append(cl)
 
     print(labels)

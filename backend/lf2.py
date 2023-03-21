@@ -30,6 +30,7 @@ def main(event, context):
     url = host + '/' + index + '/' + '_search'
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
+    query = set(query)
     for q in query:
         query = {
             "size": 5,
