@@ -353,14 +353,8 @@ Resources:
     Type: AWS::ApiGateway::UsagePlan
     Properties: 
       ApiStages:
-      - ApiId: !Ref apiRest
-        Stage: !Ref apiStage
-      Quota:
-        Limit: 5000
-        Period: MONTH
-      Throttle:
-        BurstLimit: 200
-        RateLimit: 100
+        - ApiId: !Ref apiRest
+          Stage: !Ref apiStage
       UsagePlanName: ccbd-hw2-apiUsagePlan
 
   apiKey:
@@ -368,6 +362,9 @@ Resources:
     Properties: 
       Enabled: true
       Value: "superduperboomerlooperstuper"
+      StageKeys:
+        - ApiId: !Ref apiRest
+          Stage: !Ref apiStage
     
   apiUsagePlanKey:
     Type: 'AWS::ApiGateway::UsagePlanKey'
