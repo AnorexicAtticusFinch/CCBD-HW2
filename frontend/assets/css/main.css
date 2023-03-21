@@ -18,4 +18,5 @@ body {background-color: lightblue;}
 #img-container img{
    height: 200px;
    width: auto;
+   padding: 10px;
 }

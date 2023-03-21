@@ -4,7 +4,7 @@ function searchPhoto() {
   var searchText = document.getElementById('search-text').value;
 
   apigClient
-    .searchGet({q: searchText}, {})
+    .searchGet({q: searchText, "x-api-key": "hfcnvbmjhjhgf"}, {})
     .then(function (res) {
 
       res_data = res.data.body;
@@ -15,14 +15,16 @@ function searchPhoto() {
       if (res_data.length == 0) {
         document.getElementById('img-container').innerHTML = "Could not find any matching image. Please try again!";
       }
-
-      for (var i = 0, len = res_data.length; i < len; i++) {
-        var img = new Image();
-        img.src = res_data[i];
-        img.setAttribute('class', 'banner-img');
-        img.setAttribute('alt', 'img');
+      else {
         document.getElementById('img-container').innerHTML = "Image search results : ";
-        document.getElementById('img-container').appendChild(img);
+        for (var i = 0, len = res_data.length; i < len; i++) {
+          var img = new Image();
+          img.src = res_data[i];
+          img.setAttribute('class', 'banner-img');
+          img.setAttribute('alt', 'img');
+          console.log("IMG: ",img.src)
+          document.getElementById('img-container').innerHTML += "<figure><img src=" + img.src + "></figure>"
+        }
       }
     })
     .catch(function (result) {});
@@ -57,6 +59,7 @@ function uploadPhoto() {
     filename: file.name,
     bucket: 'ccbdhw2-b2-photos-bucket',
     'x-amz-meta-customLabels': customtag.value,
+    "x-api-key": "hfcnvbmjhjhgf"
   };	
 
   var additionalParams = {
