@@ -31,25 +31,33 @@ def main(event, context):
     headers = { "Content-Type": "application/json", "Authorization": "Basic bWFzdGVyVXNlckNDQkRIVzI6SUxpa2VCaWdNdXR0c0FuZElDYW5ub3RMMTMh" }
 
     query = set(query)
-    for q in query:
-        query = {
-            "size": 5,
-            "query" : {
-                "match" : {
-                  "labels": q
-                }
+    esq = {
+        "query": {
+            "match": {
+                "labels": " ".join(query),
+                "operator": "and"
             }
         }
-        
-        r = requests.get(url, json=query, headers=headers)
-        r.raise_for_status()
-        body = r.json()
-        items = body["hits"]["hits"]
-        for item in items:
-            bucket = item["_source"]["bucket"]
-            key = item["_source"]["objectKey"]
-            photoURL = "https://{0}.s3.amazonaws.com/{1}".format(bucket,key)
-            photos.append(photoURL)        
+    }
+    # for q in query:
+    #     query = {
+    #         "size": 5,
+    #         "query" : {
+    #             "match" : {
+    #               "labels": q
+    #             }
+    #         }
+    #     }
+ 
+    r = requests.get(url, json=esq, headers=headers)
+    r.raise_for_status()
+    body = r.json()
+    items = body["hits"]["hits"]
+    for item in items:
+        bucket = item["_source"]["bucket"]
+        key = item["_source"]["objectKey"]
+        photoURL = "https://{0}.s3.amazonaws.com/{1}".format(bucket,key)
+        photos.append(photoURL)        
 
     print("Photos count: ", len(photos))
 
