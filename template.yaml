@@ -207,7 +207,7 @@ Resources:
       ResourceId: !Ref apiSearchResource
       HttpMethod: "OPTIONS"
       AuthorizationType: "NONE"
-      ApiKeyRequired: false
+      ApiKeyRequired: true
       RequestParameters: {}
       MethodResponses: 
       - 
@@ -298,7 +298,7 @@ Resources:
       ResourceId: !Ref apiUploadResourceFile
       HttpMethod: "OPTIONS"
       AuthorizationType: "NONE"
-      ApiKeyRequired: false
+      ApiKeyRequired: true
       RequestParameters: 
         "method.request.header.x-amz-meta-customLabels": false
       MethodResponses: 
