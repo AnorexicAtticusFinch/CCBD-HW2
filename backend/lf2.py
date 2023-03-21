@@ -35,8 +35,10 @@ def main(event, context):
     esq = {
         "query": {
             "match": {
-                "labels": " ".join(query),
-                "operator": "and"
+                "labels": {
+                    "query": " ".join(query),
+                    "operator": "and"
+                }
             }
         }
     }
