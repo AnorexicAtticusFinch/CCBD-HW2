@@ -170,7 +170,7 @@ Resources:
       ResourceId: !Ref apiSearchResource
       HttpMethod: "GET"
       AuthorizationType: "NONE"
-      ApiKeyRequired: false
+      ApiKeyRequired: true
       RequestParameters: 
         "method.request.querystring.q": false
       MethodResponses: 
@@ -261,7 +261,7 @@ Resources:
       ResourceId: !Ref apiUploadResourceFile
       HttpMethod: "PUT"
       AuthorizationType: "NONE"
-      ApiKeyRequired: false
+      ApiKeyRequired: true
       RequestParameters: 
         "method.request.header.x-amz-meta-customLabels": false
         "method.request.path.bucket": true
@@ -348,6 +348,33 @@ Resources:
       - apiUploadOptionMethod
     Properties:
       RestApiId: !Ref apiRest
+
+  apiUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties: 
+      ApiStages:
+      - ApiId: !Ref apiRest
+        Stage: !Ref apiStage
+      Quota:
+        Limit: 5000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 200
+        RateLimit: 100
+      UsagePlanName: ccbd-hw2-apiUsagePlan
+
+  apiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties: 
+      Enabled: true
+      Value: "superduperboomerlooperstuper"
+    
+  apiUsagePlanKey:
+    Type: 'AWS::ApiGateway::UsagePlanKey'
+    Properties:
+      KeyId: !Ref apiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref apiUsagePlan
 
   apiLf2IamRole:
     Type: AWS::IAM::Role
