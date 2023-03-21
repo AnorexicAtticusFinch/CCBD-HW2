@@ -4,7 +4,7 @@ function searchPhoto() {
   var searchText = document.getElementById('search-text').value;
 
   apigClient
-    .searchGet({q: searchText, "x-api-key": "hfcnvbmjhjhgf"}, {})
+    .searchGet({q: searchText, "x-api-key": "superduperboomerlooperstuper"}, {})
     .then(function (res) {
 
       res_data = res.data.body;
@@ -59,7 +59,7 @@ function uploadPhoto() {
     filename: file.name,
     bucket: 'ccbdhw2-b2-photos-bucket',
     'x-amz-meta-customLabels': customtag.value,
-    "x-api-key": "hfcnvbmjhjhgf"
+    "x-api-key": "superduperboomerlooperstuper"
   };	
 
   var additionalParams = {

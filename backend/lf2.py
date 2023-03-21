@@ -18,6 +18,15 @@ def main(event, context):
     print("RESP", response['sessionState']['intent']['slots'])
     response_slots = response['sessionState']['intent']['slots']
 
+    if len(response_slots)==0:
+        return {
+            "statusCode": 200,
+            "body": json.dumps(photos),
+            "headers": {
+                'Content-Type': 'application/json',
+            }
+        }        
+
     query = []
     if response_slots['query_term1'] != None:
         query.append(response_slots['query_term1']['value']['interpretedValue'])
