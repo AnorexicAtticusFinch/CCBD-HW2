@@ -56,7 +56,7 @@ function uploadPhoto() {
 
 
   var params = {
-    filename: file.name,
+    filename: file.name + str(int(time.time())),
     bucket: 'ccbdhw2-b2-photos-bucket',
     'x-amz-meta-customLabels': customtag.value,
     "x-api-key": "superduperboomerlooperstuper"
@@ -82,4 +82,43 @@ function uploadPhoto() {
       })
   }
   reader.readAsBinaryString(file);
+}
+
+function searchPhotoVoice() {
+
+  var apigClient = apigClientFactory.newClient();
+  var result = document.getElementById('search-text');
+
+  result.setAttribute("value", "");
+
+  if('webkitSpeechRecognition' in window) {
+    var speechRecognizer = new webkitSpeechRecognition();
+    speechRecognizer.continuous = false;
+    speechRecognizer.interimResults = true;
+    speechRecognizer.lang = 'en-US';
+    speechRecognizer.start();
+
+    var finalTranscripts = '';
+
+    speechRecognizer.onresult = function(event) {
+      var interimTranscripts = '';
+      for(var i = event.resultIndex; i < event.results.length; i++){
+        var transcript = event.results[i][0].transcript;
+        transcript.replace("\n", "<br>");
+        if(event.results[i].isFinal) {
+          finalTranscripts += transcript;
+        }else{
+          interimTranscripts += transcript;
+        }
+      }
+      result.setAttribute("type", "text");
+      result.setAttribute("value", finalTranscripts);
+      // result.innerHTML = finalTranscripts + '<span style="color: #999">' + interimTranscripts + '</span>';
+      console.log(finalTranscripts, " + ", interimTranscripts)
+    };
+    speechRecognizer.onerror = function (event) {
+    };
+  }else {
+    result.innerHTML = 'Your browser is not supported. Please download Google chrome or Update your Google chrome!!';
+  } 
 }

@@ -10,10 +10,9 @@
         <!-- Bootstrap core CSS -->
         <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Bootstrap core CSS -->
-        <link href="./assets/css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom styles for this template -->
         <link href="./assets/css/main.css" rel="stylesheet" >
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
         <!-- api gateway generated sdk -->
         <script src="./assets/js/sdk/lib/axios/dist/axios.standalone.js"></script>
@@ -42,7 +41,9 @@
             <div class="input-group">
                 <input id="search-text" type="text" class="form-control" placeholder="Add text to search photo" name="search">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit" onclick="searchPhoto()"> Search <i class="fa fa-search"></i>
+                    <button class="btn btn-default" type="submit" onclick="searchPhoto()"> <i class="fa fa-search"></i>
+                    </button>
+                    <button class="btn btn-default" type="submit" onclick="searchPhotoVoice()"> <i class="fa fa-microphone"></i> </i>
                     </button>
                 </div>
             </div>
