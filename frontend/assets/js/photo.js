@@ -1,4 +1,12 @@
+var speechRecognizer = null;
+
+
 function searchPhoto() {
+
+  if(speechRecognizer !== null) {
+    speechRecognizer.stop();
+    speechRecognizer = null;
+  }
 
   var apigClient = apigClientFactory.newClient();
   var searchText = document.getElementById('search-text').value;
@@ -54,9 +62,10 @@ function uploadPhoto() {
 
   file.constructor = () => file;
 
+  var currTime = (new Date()).getTime();
 
   var params = {
-    filename: file.name + str(int(time.time())),
+    filename:  currTime + file.name,
     bucket: 'ccbdhw2-b2-photos-bucket',
     'x-amz-meta-customLabels': customtag.value,
     "x-api-key": "superduperboomerlooperstuper"
@@ -92,7 +101,7 @@ function searchPhotoVoice() {
   result.setAttribute("value", "");
 
   if('webkitSpeechRecognition' in window) {
-    var speechRecognizer = new webkitSpeechRecognition();
+    speechRecognizer = new webkitSpeechRecognition();
     speechRecognizer.continuous = false;
     speechRecognizer.interimResults = true;
     speechRecognizer.lang = 'en-US';
@@ -105,15 +114,11 @@ function searchPhotoVoice() {
       for(var i = event.resultIndex; i < event.results.length; i++){
         var transcript = event.results[i][0].transcript;
         transcript.replace("\n", "<br>");
-        if(event.results[i].isFinal) {
-          finalTranscripts += transcript;
-        }else{
-          interimTranscripts += transcript;
-        }
+        finalTranscripts = transcript;
       }
       result.setAttribute("type", "text");
       result.setAttribute("value", finalTranscripts);
-      // result.innerHTML = finalTranscripts + '<span style="color: #999">' + interimTranscripts + '</span>';
+    
       console.log(finalTranscripts, " + ", interimTranscripts)
     };
     speechRecognizer.onerror = function (event) {
