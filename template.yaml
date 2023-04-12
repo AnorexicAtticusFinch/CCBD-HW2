@@ -12,7 +12,7 @@ Resources:
     Properties:
       FunctionName: index-photos-lf1
       Tracing: Active
-      Timeout: 30
+      Timeout: 35
       CodeUri: ./backend/
       Handler: lf1.main
       Runtime: python3.9
@@ -32,7 +32,7 @@ Resources:
     Properties:
       FunctionName: search-photos-lf2
       Tracing: Active
-      Timeout: 30
+      Timeout: 35
       CodeUri: ./backend/
       Handler: lf2.main
       Runtime: python3.9
