@@ -7,6 +7,7 @@ import inflection
 
 def main(event, context):
     print("LF1")
+    print("NEW CHANGEEEE!!")
 
     s3_client = boto3.client('s3')
     s3 = event['Records'][0]['s3']
